@@ -1,4 +1,4 @@
-name: Deploy CICD React App to EC2
+name: Deploy to EC2 (Dev)
 
 on:
   push:
@@ -7,24 +7,25 @@ on:
 
 jobs:
   deploy:
+    name: Deploy to EC2
     runs-on: ubuntu-latest
+    environment: Dev  # <-- Use your configured environment name here
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Setup SSH key
+      - name: Setup SSH Key
         run: |
           echo "${{ secrets.EC2_KEY }}" > key.pem
           chmod 400 key.pem
 
-      - name: Deploy to EC2 and run Docker
+      - name: SSH and Deploy App
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            docker container stop cicd-container || true
-            docker container rm cicd-container || true
-            cd ~/cicd || git clone https://github.com/<your-username>/<your-repo>.git ~/cicd && cd ~/cicd
+            docker rm -f todo-container || true
+            cd ~/todo || git clone https://github.com/test982298/todo.git ~/todo && cd ~/todo
             git pull origin main
-            docker build -t cicd .
-            docker run -d -p 80:80 --name cicd-container cicd
+            docker build -t todo .
+            docker run -d -p 80:80 --name todo-container todo
           EOF
