@@ -44,7 +44,7 @@ function App() {
 
   return (
     <div className="app">
-      <h1>Todo App</h1>
+      <h1>TodoList </h1>
       <form onSubmit={handleSubmit} className="todo-form">
         <input
           type="text"
